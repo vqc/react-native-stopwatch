@@ -1,4 +1,5 @@
 'use strict';
+
 import React, {
   AppRegistry,
   Component,
@@ -6,9 +7,18 @@ import React, {
   Text,
   View,
   TouchableHighlight,
-} from 'react-native'
+} from 'react-native';
+
+import formatTime from 'minutes-seconds-milliseconds';
 
 class StopWatch extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      timeElapsed: null,
+    }
+    this.handleStartPress = this.handleStartPress.bind(this);
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -16,7 +26,7 @@ class StopWatch extends Component {
         <View style={[this.border('yellow'), styles.header]}>
           <View style={[styles.timerWrapper, this.border('red')]}>
           <Text>
-            00:00.00
+            {formatTime(this.state.timeElapsed)}
           </Text>
           </View>
           <View style={[styles.buttonWrapper, this.border('green')]}>
@@ -56,7 +66,13 @@ class StopWatch extends Component {
     )
   }
   handleStartPress(){
-    console.log('start was pressed');
+    const startTime = new Date();
+    //startTime will be the time at which user touches the buttonWrapper
+    setInterval(() => {
+      this.setState({
+        timeElapsed: new Date() - startTime,
+      });
+    }, 30);
   }
   border(color){
      return {
