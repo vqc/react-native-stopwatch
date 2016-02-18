@@ -17,8 +17,11 @@ class StopWatch extends Component {
     this.state = {
       timeElapsed: null,
       running: false,
+      startTime: null,
+      laps: [],
     }
     this.handleStartPress = this.handleStartPress.bind(this);
+    this.handleLapPress = this.handleLapPress.bind(this);
   }
   render() {
     return (
@@ -26,22 +29,18 @@ class StopWatch extends Component {
 
         <View style={[styles.header]}>
           <View style={[styles.timerWrapper]}>
-          <Text style={styles.timer}>
-            {formatTime(this.state.timeElapsed)}
-          </Text>
+            <Text style={styles.timer}>
+              {formatTime(this.state.timeElapsed)}
+            </Text>
           </View>
           <View style={[styles.buttonWrapper]}>
             {this.startStopButton()}
             {this.lapButton()}
           </View>
         </View>
-
         <View style={[styles.footer]}>
-          <Text>
-            I am a list of Laps.
-          </Text>
+          {this.laps()}
         </View>
-
       </View>
     );
   }
@@ -53,6 +52,7 @@ class StopWatch extends Component {
         onPress={this.handleStartPress}
         style={[styles.button, style]}
       >
+
           <Text style={styles.instructions}>
             {this.state.running ? 'Stop' : 'Start' }
           </Text>
@@ -63,7 +63,7 @@ class StopWatch extends Component {
     return(
       <TouchableHighlight
         underlayColor="gray"
-        onPress={this.handeLapPress}
+        onPress={this.handleLapPress}
         style={[styles.button]}
       >
         <Text style={styles.instructions}>
@@ -72,25 +72,42 @@ class StopWatch extends Component {
       </TouchableHighlight>
     )
   }
+  laps(){
+    return this.state.laps.map((lap, index)=>{
+        return (
+          <View key={index} style={styles.lap}>
+            <Text style={styles.lapText}>
+              Lap #{index+1}
+            </Text>
+            <Text style={styles.lapText}>
+              {formatTime(lap)}
+            </Text>
+          </View>
+        )
+      }
+    )
+  }
   handleStartPress(){
     if(this.state.running){
       clearInterval(this.interval);
-      this.setState({
-        running: false,
-      });
+      this.setState({ running: false });
       return;
     }
-    const startTime = new Date();
+
+    this.setState ({ startTime: new Date()});
     //startTime will be the time at which user touches the buttonWrapper
     this.interval = setInterval(() => {
       this.setState({
-        timeElapsed: new Date() - startTime,
+        timeElapsed: new Date() - this.state.startTime,
         running: true,
       });
     }, 30);
   }
   handleLapPress(){
-
+    if(this.state.running){
+      const lap = this.state.timeElapsed;
+      this.setState({ startTime: new Date(), laps: this.state.laps.concat([lap]) })
+    }
   }
 }
 
@@ -136,7 +153,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
+  lap: {
+    justifyContent: 'space-around',
+    flexDirection: 'row',
+  },
+  lapText:{
+    fontSize: 30,
+  },
 });
 
 AppRegistry.registerComponent('reactNativeStopwatch', () => StopWatch);
