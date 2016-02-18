@@ -16,6 +16,7 @@ class StopWatch extends Component {
     super(props);
     this.state = {
       timeElapsed: null,
+      running: false,
     }
     this.handleStartPress = this.handleStartPress.bind(this);
   }
@@ -23,20 +24,20 @@ class StopWatch extends Component {
     return (
       <View style={styles.container}>
 
-        <View style={[this.border('yellow'), styles.header]}>
-          <View style={[styles.timerWrapper, this.border('red')]}>
-          <Text>
+        <View style={[styles.header]}>
+          <View style={[styles.timerWrapper]}>
+          <Text style={styles.timer}>
             {formatTime(this.state.timeElapsed)}
           </Text>
           </View>
-          <View style={[styles.buttonWrapper, this.border('green')]}>
+          <View style={[styles.buttonWrapper]}>
             {this.startStopButton()}
             {this.lapButton()}
           </View>
         </View>
 
-        <View style={[this.border('blue'), styles.footer]}>
-          <Text style={this.border('red')}>
+        <View style={[styles.footer]}>
+          <Text>
             I am a list of Laps.
           </Text>
         </View>
@@ -45,40 +46,51 @@ class StopWatch extends Component {
     );
   }
   startStopButton(){
+    const style = this.state.running ? styles.stopButton : styles.startButton;
     return(
       <TouchableHighlight
         underlayColor="gray"
         onPress={this.handleStartPress}
+        style={[styles.button, style]}
       >
-        <Text style={styles.instructions}>
-          Start
-        </Text>
+          <Text style={styles.instructions}>
+            {this.state.running ? 'Stop' : 'Start' }
+          </Text>
       </TouchableHighlight>
     )
   }
   lapButton(){
     return(
-      <View>
+      <TouchableHighlight
+        underlayColor="gray"
+        onPress={this.handeLapPress}
+        style={[styles.button]}
+      >
         <Text style={styles.instructions}>
           Lap
         </Text>
-      </View>
+      </TouchableHighlight>
     )
   }
   handleStartPress(){
+    if(this.state.running){
+      clearInterval(this.interval);
+      this.setState({
+        running: false,
+      });
+      return;
+    }
     const startTime = new Date();
     //startTime will be the time at which user touches the buttonWrapper
-    setInterval(() => {
+    this.interval = setInterval(() => {
       this.setState({
         timeElapsed: new Date() - startTime,
+        running: true,
       });
     }, 30);
   }
-  border(color){
-     return {
-       borderColor: color,
-       borderWidth:4,
-     }
+  handleLapPress(){
+
   }
 }
 
@@ -104,9 +116,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
+  startButton:{
+    borderColor: '#00CC00',
+  },
+  stopButton:{
+    borderColor: '#CC0000',
+  },
   footer: {
     flex:1,
   },
+  timer:{
+    fontSize: 60,
+  },
+  button:{
+    borderWidth: 2,
+    height: 100,
+    width: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
 });
 
 AppRegistry.registerComponent('reactNativeStopwatch', () => StopWatch);
